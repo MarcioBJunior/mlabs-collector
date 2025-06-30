@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mlabs Analytics Collector</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; }
+        .status { 
+            padding: 10px; 
+            border-radius: 5px; 
+            margin: 20px 0;
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+        }
+        .endpoint {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Mlabs Analytics Collector</h1>
+        
+        <div class="status">
+            ✅ Sistema ativo e funcionando
+        </div>
+        
+        <h2>📊 API Endpoints</h2>
+        
+        <h3>Coleta Manual</h3>
+        <div class="endpoint">
+            GET /api/collect
+        </div>
+        <p>Executa a coleta de dados dos relatórios Mlabs Analytics imediatamente.</p>
+        
+        <h3>Execução Automática</h3>
+        <p>🕘 <strong>Cron Job:</strong> Execução diária às 9h (horário UTC)</p>
+        <p>📅 <strong>Configuração:</strong> <code>0 9 * * *</code></p>
+        
+        <h2>🎯 Funcionalidades</h2>
+        <ul>
+            <li>✅ Extração automática de 4 relatórios Mlabs</li>
+            <li>✅ Normalização em formato JSON</li>
+            <li>✅ Persistência no Supabase</li>
+            <li>✅ Gestão de cookies e sessão</li>
+            <li>✅ Tratamento de erros robusto</li>
+        </ul>
+        
+        <h2>📈 Relatórios Coletados</h2>
+        <ul>
+            <li>Adenis Facebook</li>
+            <li>Adenis Instagram</li>
+            <li>Relatório Geral</li>
+            <li>Relatório Personalizado</li>
+        </ul>
+        
+        <p><small>Desenvolvido por Manus AI Agent</small></p>
+    </div>
+</body>
+</html>
+
