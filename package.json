@@ -1,0 +1,34 @@
+{
+  "name": "mlabs-collector",
+  "version": "1.0.0",
+  "description": "Coletor diário automatizado para Mlabs Analytics",
+  "main": "api/collect.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'No build step required'",
+    "start": "node api/collect.js"
+  },
+  "dependencies": {
+    "puppeteer": "^21.6.1",
+    "@supabase/supabase-js": "^2.38.5",
+    "puppeteer-core": "^21.6.1"
+  },
+  "devDependencies": {
+    "vercel": "^32.7.2"
+  },
+  "engines": {
+    "node": "18.x"
+  },
+  "keywords": [
+    "mlabs",
+    "analytics",
+    "scraping",
+    "automation",
+    "vercel",
+    "supabase"
+  ],
+  "author": "Manus AI Agent",
+  "license": "MIT"
+}
+
