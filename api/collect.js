@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 import { getBrowser, saveCookies } from '../lib/browser.js';
 import { coletarTodosRelatorios } from '../lib/extractor.js';
-import { saveReport, testConnection } from '../lib/supabase.js';
+import { saveReport, supabase } from '../lib/supabase.js';
 
 /**
  * Handler principal da API Vercel para coleta de dados do Mlabs Analytics
@@ -15,20 +15,37 @@ export default async function handler(req, res) {
   try {
     console.log('🚀 Iniciando coleta de dados do Mlabs Analytics...');
     
-    // Testa conexão com Supabase
-    const supabaseOk = await testConnection();
-    if (!supabaseOk) {
+    // Testa conexão com Supabase diretamente
+    try {
+      const { data, error } = await supabase
+        .from('mlabs_reports')
+        .select('*')
+        .limit(1);
+
+      if (error) {
+        console.error('Erro na conexão com Supabase:', error);
+        return res.status(500).json({
+          success: false,
+          error: `Erro na conexão com Supabase: ${error.message}`,
+          data: {
+            tempoExecucao: `${Date.now() - startTime}ms`,
+            timestamp: new Date().toISOString()
+          }
+        });
+      }
+
+      console.log('Conexão com Supabase OK');
+    } catch (connectionError) {
+      console.error('Erro ao testar conexão:', connectionError);
       return res.status(500).json({
         success: false,
-        error: 'Falha na conexão com Supabase - Tabela não existe. Execute o SQL manualmente no painel do Supabase.',
+        error: `Falha na conexão com Supabase: ${connectionError.message}`,
         data: {
           tempoExecucao: `${Date.now() - startTime}ms`,
           timestamp: new Date().toISOString()
         }
       });
     }
-    
-    console.log('Conexão com Supabase OK');
     
     // Inicializa browser
     console.log('🌐 Inicializando browser Puppeteer...');
