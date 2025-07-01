@@ -49,8 +49,24 @@ export default async function handler(req, res) {
     
     // Inicializa browser
     console.log('🌐 Inicializando browser Puppeteer...');
-    const { browser, page } = await getBrowser();
-    console.log('✅ Browser inicializado com sucesso');
+    let browser, page;
+    try {
+      const browserResult = await getBrowser();
+      browser = browserResult.browser;
+      page = browserResult.page;
+      console.log('✅ Browser inicializado com sucesso');
+    } catch (browserError) {
+      console.error('❌ Erro ao inicializar browser:', browserError);
+      return res.status(500).json({
+        success: false,
+        error: `Falha ao inicializar browser: ${browserError.message}`,
+        stack: browserError.stack,
+        data: {
+          tempoExecucao: `${Date.now() - startTime}ms`,
+          timestamp: new Date().toISOString()
+        }
+      });
+    }
     
     try {
       // Executa coleta de todos os relatórios
@@ -90,8 +106,12 @@ export default async function handler(req, res) {
     } finally {
       // Sempre fecha o browser
       if (browser) {
-        await browser.close();
-        console.log('🔒 Browser fechado');
+        try {
+          await browser.close();
+          console.log('🔒 Browser fechado');
+        } catch (closeError) {
+          console.error('Erro ao fechar browser:', closeError);
+        }
       }
     }
     
@@ -102,6 +122,7 @@ export default async function handler(req, res) {
     const errorResponse = {
       success: false,
       error: error.message,
+      stack: error.stack,
       data: {
         tempoExecucao: `${executionTime}ms`,
         timestamp: new Date().toISOString()
