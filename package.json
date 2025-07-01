@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "vercel dev",
-    "start": "node api/collect.js"
+    "start": "node api/collect.js",
+    "postinstall": "npx puppeteer browsers install chrome"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.38.5",
