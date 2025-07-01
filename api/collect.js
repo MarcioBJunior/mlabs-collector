@@ -18,7 +18,7 @@ export default async function handler(req, res) {
     // Testa conexão com Supabase
     const supabaseOk = await testConnection();
     if (!supabaseOk) {
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Falha na conexão com Supabase - Tabela não existe. Execute o SQL manualmente no painel do Supabase.',
         data: {
@@ -26,10 +26,12 @@ export default async function handler(req, res) {
           timestamp: new Date().toISOString()
         }
       });
-      return;
     }
     
+    console.log('Conexão com Supabase OK');
+    
     // Inicializa browser
+    console.log('🌐 Inicializando browser Puppeteer...');
     const { browser, page } = await getBrowser();
     console.log('✅ Browser inicializado com sucesso');
     
@@ -41,7 +43,6 @@ export default async function handler(req, res) {
       // Salva cookies da sessão para reutilização
       const cookies = await saveCookies(page);
       if (cookies.length > 0) {
-        // Em produção, salvar cookies em variável de ambiente
         console.log(`🍪 ${cookies.length} cookies salvos para próxima execução`);
       }
       
@@ -67,12 +68,14 @@ export default async function handler(req, res) {
       };
       
       console.log('✅ Coleta concluída com sucesso', response.data);
-      res.status(200).json(response);
+      return res.status(200).json(response);
       
     } finally {
       // Sempre fecha o browser
-      await browser.close();
-      console.log('🔒 Browser fechado');
+      if (browser) {
+        await browser.close();
+        console.log('🔒 Browser fechado');
+      }
     }
     
   } catch (error) {
@@ -88,7 +91,7 @@ export default async function handler(req, res) {
       }
     };
     
-    res.status(500).json(errorResponse);
+    return res.status(500).json(errorResponse);
   }
 }
 
