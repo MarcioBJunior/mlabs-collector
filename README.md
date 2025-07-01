@@ -1,6 +1,67 @@
-# Coletor Diário Mlabs Analytics
+# Coletor Mlabs Analytics
 
-Sistema automatizado para coleta diária de dados do Mlabs Analytics, processamento e armazenamento no Supabase.
+Sistema automatizado para coleta de dados do Mlabs Analytics.
+
+## ✅ Status do Projeto
+
+- ✅ **API funcionando** - Servidor local rodando sem erros
+- ✅ **Variáveis de ambiente** - Configuradas corretamente
+- ✅ **Conexão Supabase** - Funcionando
+- ❌ **Tabela mlabs_reports** - Precisa ser criada no Supabase
+
+## 🚀 Como Usar
+
+### 1. Criar Tabela no Supabase
+
+Acesse o painel do Supabase e execute este SQL no SQL Editor:
+
+```sql
+CREATE TABLE IF NOT EXISTS public.mlabs_reports (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    coletado_em DATE NOT NULL,
+    relatorio TEXT NOT NULL,
+    periodo JSONB NOT NULL,
+    indicadores JSONB NOT NULL,
+    inserted_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS mlabs_reports_uniq
+    ON public.mlabs_reports (relatorio, (periodo->>'inicio'));
+```
+
+### 2. Testar Localmente
+
+```bash
+node index.js
+```
+
+Acesse: http://localhost:3000/api/collect
+
+### 3. Deploy na Vercel
+
+```bash
+./node_modules/.bin/vercel --prod --yes
+```
+
+## 📊 API Endpoints
+
+- `GET /api/collect` - Executa coleta de dados do Mlabs Analytics
+
+## 🔧 Configuração
+
+As variáveis de ambiente já estão configuradas no arquivo `.env`:
+
+- `SUPABASE_URL` - URL do projeto Supabase
+- `SERVICE_ROLE_KEY` - Chave de serviço do Supabase
+- `MLABS_AUTH_URL` - URL de autenticação do Mlabs Analytics
+
+## 📝 Logs
+
+O sistema mostra logs detalhados durante a execução:
+- Status da conexão com Supabase
+- Inicialização do browser
+- Coleta de relatórios
+- Salvamento no banco de dados
 
 ## 🎯 Objetivo
 

@@ -10,8 +10,9 @@
     "start": "node api/collect.js"
   },
   "dependencies": {
-    "puppeteer": "^21.6.1",
     "@supabase/supabase-js": "^2.38.5",
+    "dotenv": "^17.0.1",
+    "puppeteer": "^21.6.1",
     "puppeteer-core": "^21.6.1"
   },
   "devDependencies": {
@@ -31,4 +32,3 @@
   "author": "Manus AI Agent",
   "license": "MIT"
 }
-

@@ -1,3 +1,5 @@
+import dotenv from 'dotenv';
+dotenv.config();
 import { getBrowser, saveCookies } from '../lib/browser.js';
 import { coletarTodosRelatorios } from '../lib/extractor.js';
 import { saveReport, testConnection } from '../lib/supabase.js';
@@ -16,7 +18,15 @@ export default async function handler(req, res) {
     // Testa conexão com Supabase
     const supabaseOk = await testConnection();
     if (!supabaseOk) {
-      throw new Error('Falha na conexão com Supabase');
+      res.status(500).json({
+        success: false,
+        error: 'Falha na conexão com Supabase - Tabela não existe. Execute o SQL manualmente no painel do Supabase.',
+        data: {
+          tempoExecucao: `${Date.now() - startTime}ms`,
+          timestamp: new Date().toISOString()
+        }
+      });
+      return;
     }
     
     // Inicializa browser
@@ -57,7 +67,7 @@ export default async function handler(req, res) {
       };
       
       console.log('✅ Coleta concluída com sucesso', response.data);
-      return res.status(200).json(response);
+      res.status(200).json(response);
       
     } finally {
       // Sempre fecha o browser
@@ -78,7 +88,7 @@ export default async function handler(req, res) {
       }
     };
     
-    return res.status(500).json(errorResponse);
+    res.status(500).json(errorResponse);
   }
 }
 
