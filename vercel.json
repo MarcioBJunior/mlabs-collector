@@ -12,6 +12,10 @@
     }
   ],
   "buildCommand": null,
-  "outputDirectory": null
+  "outputDirectory": null,
+  "env": {
+    "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD": "false",
+    "PUPPETEER_EXECUTABLE_PATH": "/usr/bin/google-chrome-stable"
+  }
 }
 
