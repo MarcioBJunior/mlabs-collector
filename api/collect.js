@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 dotenv.config();
-import { getBrowser, saveCookies } from '../lib/browser.js';
+// import { getBrowser, saveCookies } from '../lib/browser.js';
 // import { coletarTodosRelatorios } from '../lib/extractor.js';
 import { saveReport, supabase } from '../lib/supabase.js';
 
@@ -47,58 +47,22 @@ export default async function handler(req, res) {
       });
     }
     
-    // Inicializa browser
-    console.log('🌐 Inicializando browser Puppeteer...');
-    let browser, page;
-    try {
-      const browserResult = await getBrowser();
-      browser = browserResult.browser;
-      page = browserResult.page;
-      console.log('✅ Browser inicializado com sucesso');
-    } catch (browserError) {
-      console.error('❌ Erro ao inicializar browser:', browserError);
-      return res.status(500).json({
-        success: false,
-        error: `Falha ao inicializar browser: ${browserError.message}`,
-        stack: browserError.stack,
-        data: {
-          tempoExecucao: `${Date.now() - startTime}ms`,
-          timestamp: new Date().toISOString()
-        }
-      });
-    }
-    
-    try {
-      // Teste simples com o browser
-      await page.goto('https://www.google.com', { waitUntil: 'networkidle2' });
-      const title = await page.title();
-      
-      const executionTime = Date.now() - startTime;
-      const response = {
-        success: true,
-        message: 'Teste do browser concluído com sucesso',
-        data: {
-          tempoExecucao: `${executionTime}ms`,
-          timestamp: new Date().toISOString(),
-          tituloPagina: title,
-          url: page.url()
-        }
-      };
-      
-      console.log('✅ Teste do browser concluído com sucesso', response.data);
-      return res.status(200).json(response);
-      
-    } finally {
-      // Sempre fecha o browser
-      if (browser) {
-        try {
-          await browser.close();
-          console.log('🔒 Browser fechado');
-        } catch (closeError) {
-          console.error('Erro ao fechar browser:', closeError);
-        }
+    // Teste simples sem browser
+    const executionTime = Date.now() - startTime;
+    const response = {
+      success: true,
+      message: 'Teste de conexão com Supabase OK - Puppeteer desabilitado',
+      data: {
+        tempoExecucao: `${executionTime}ms`,
+        timestamp: new Date().toISOString(),
+        ambiente: process.env.VERCEL ? 'Vercel' : 'Local',
+        nodeVersion: process.version,
+        puppeteerStatus: 'desabilitado'
       }
-    }
+    };
+    
+    console.log('✅ Teste concluído com sucesso', response.data);
+    return res.status(200).json(response);
     
   } catch (error) {
     console.error('❌ Erro durante o teste:', error);
