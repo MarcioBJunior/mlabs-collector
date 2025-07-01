@@ -10,6 +10,8 @@
       "path": "/api/collect",
       "schedule": "0 9 * * *"
     }
-  ]
+  ],
+  "buildCommand": null,
+  "outputDirectory": null
 }
 
