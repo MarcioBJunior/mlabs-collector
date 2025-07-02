@@ -1,8 +1,9 @@
 {
   "version": 2,
   "functions": {
-    "api/collect.js": {
-      "maxDuration": 300
+    "api/collect.py": {
+      "maxDuration": 300,
+      "runtime": "python3.9"
     }
   },
   "crons": [

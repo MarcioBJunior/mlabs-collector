@@ -1,9 +1,11 @@
-# Coletor Mlabs Analytics
+# 🐍 Coletor Mlabs Analytics (Python)
 
-Sistema automatizado para coleta de dados do Mlabs Analytics.
+Sistema automatizado para coleta de dados do Mlabs Analytics, migrado para **Python** com **Playwright** e **Browserless**.
 
 ## ✅ Status do Projeto
 
+- ✅ **Migração para Python** - Concluída com sucesso
+- ✅ **Playwright + Browserless** - Resolve problema do Chrome no serverless
 - ✅ **API funcionando** - Servidor local rodando sem erros
 - ✅ **Variáveis de ambiente** - Configuradas corretamente
 - ✅ **Conexão Supabase** - Funcionando
@@ -11,36 +13,66 @@ Sistema automatizado para coleta de dados do Mlabs Analytics.
 
 ## 🚀 Como Usar
 
-### 1. Criar Tabela no Supabase
+### 1. Instalar Dependências Python
+
+```bash
+# Instalar Python 3.9+ (se necessário)
+sudo apt update
+sudo apt install python3.9 python3.9-pip
+
+# Instalar dependências
+pip install -r requirements.txt
+
+# Instalar Playwright e navegadores
+bash install-playwright.sh
+```
+
+### 2. Configurar Variáveis de Ambiente
+
+Copie o arquivo de exemplo e configure suas variáveis:
+
+```bash
+cp env.example .env
+# Edite o arquivo .env com suas credenciais
+```
+
+### 3. Criar Tabela no Supabase
 
 Acesse o painel do Supabase e execute este SQL no SQL Editor:
 
 ```sql
 CREATE TABLE IF NOT EXISTS public.mlabs_reports (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    coletado_em DATE NOT NULL,
-    relatorio TEXT NOT NULL,
-    periodo JSONB NOT NULL,
-    indicadores JSONB NOT NULL,
+    tipo_relatorio TEXT NOT NULL,
+    dados JSONB NOT NULL,
+    status TEXT NOT NULL,
+    erro TEXT,
+    timestamp_coleta TIMESTAMPTZ NOT NULL,
+    ambiente TEXT NOT NULL,
     inserted_at TIMESTAMPTZ DEFAULT NOW()
 );
-
-CREATE UNIQUE INDEX IF NOT EXISTS mlabs_reports_uniq
-    ON public.mlabs_reports (relatorio, (periodo->>'inicio'));
 ```
 
-### 2. Testar Localmente
+### 4. Testar Localmente
 
 ```bash
-node index.js
+# Iniciar servidor local
+python server.py
+
+# Ou testar diretamente
+python api/collect.py test
 ```
 
 Acesse: http://localhost:3000/api/collect
 
-### 3. Deploy na Vercel
+### 5. Deploy na Vercel
 
 ```bash
-./node_modules/.bin/vercel --prod --yes
+# Deploy via CLI
+vercel --prod
+
+# Ou via Git (push para main branch)
+git push origin main
 ```
 
 ## 📊 API Endpoints
@@ -75,15 +107,25 @@ Coletar automaticamente indicadores dos 4 relatórios principais:
 
 ```
 ├── /api
-│   └── collect.js        # Função serverless Vercel
-├── /lib
-│   ├── browser.js        # Instância Puppeteer headless-chrome
-│   ├── extractor.js      # Lógica de scraping / mapeamento DOM→JSON
-│   └── supabase.js       # Client & persistência
-├── .env.example          # Variáveis de ambiente
+│   └── collect.py        # Função serverless Vercel (Python)
+├── server.py             # Servidor local Python
+├── requirements.txt      # Dependências Python
+├── runtime.txt           # Versão Python
+├── install-playwright.sh # Script de instalação
+├── test-migration.py     # Script de teste
+├── env.example           # Variáveis de ambiente
 ├── vercel.json           # Configuração cron programado
-└── package.json
+├── create_table.sql      # Script SQL para criar tabela
+└── .env                  # Variáveis de ambiente (não versionado)
 ```
+
+### 🐍 Tecnologias Utilizadas
+
+- **Python 3.9** - Linguagem principal
+- **Playwright** - Automação de browser
+- **Browserless** - Serviço de browser remoto
+- **Supabase** - Banco de dados
+- **Vercel** - Deploy serverless
 
 ## 🚀 Deploy na Vercel
 
@@ -96,13 +138,21 @@ No painel da Vercel, configure:
 | `SUPABASE_URL` | `https://onabaflydjcnnhmfehvs.supabase.co` |
 | `SERVICE_ROLE_KEY` | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...tr-ZI` |
 | `MLABS_AUTH_URL` | URL completa com JWT do Mlabs Analytics |
-| `COOKIE_STORE` | `[]` (será preenchido automaticamente) |
+| `MLABS_EMAIL` | Seu email do Mlabs Analytics |
+| `MLABS_PASSWORD` | Sua senha do Mlabs Analytics |
+| `BROWSERLESS_URL` | `https://chrome.browserless.io` (opcional) |
+| `BROWSERLESS_API_KEY` | Sua chave API do Browserless (opcional) |
 
 ### 2. Deploy
 
 ```bash
+# Instalar Vercel CLI (se necessário)
 npm i -g vercel@latest
-vercel login --token OXgRb4xhaJQS2SaN7P5BG4E9
+
+# Login na Vercel
+vercel login
+
+# Deploy
 vercel --prod
 ```
 
@@ -117,10 +167,12 @@ O sistema executa automaticamente todos os dias às 06:00 BRT (09:00 UTC).
 ```sql
 CREATE TABLE mlabs_reports (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  coletado_em DATE NOT NULL,
-  relatorio TEXT NOT NULL,
-  periodo JSONB NOT NULL,
-  indicadores JSONB NOT NULL,
+  tipo_relatorio TEXT NOT NULL,
+  dados JSONB NOT NULL,
+  status TEXT NOT NULL,
+  erro TEXT,
+  timestamp_coleta TIMESTAMPTZ NOT NULL,
+  ambiente TEXT NOT NULL,
   inserted_at TIMESTAMPTZ DEFAULT NOW()
 );
 ```
@@ -129,25 +181,16 @@ CREATE TABLE mlabs_reports (
 
 ```json
 {
-  "coletadoEm": "2025-06-30",
-  "relatorio": "Adenis Instagram",
-  "periodo": {
-    "inicio": "2025-06-29",
-    "fim": "2025-06-29"
-  },
-  "indicadores": [
-    {
-      "titulo": "Visão Geral",
-      "nome": "Seguidores",
-      "valor": 719,
-      "variacaoPercentual": 0.00
-    },
-    {
-      "titulo": "Visão Geral",
-      "nome": "Curtidas",
-      "valor": 36
-    }
-  ]
+  "tipo_relatorio": "vendas",
+  "dados": [
+    ["Produto", "Quantidade", "Valor"],
+    ["Produto A", "10", "R$ 1.000,00"],
+    ["Produto B", "5", "R$ 500,00"]
+  ],
+  "status": "sucesso",
+  "erro": null,
+  "timestamp_coleta": "2024-01-15T10:30:00Z",
+  "ambiente": "vercel-python"
 }
 ```
 
@@ -156,14 +199,24 @@ CREATE TABLE mlabs_reports (
 ### Instalação
 
 ```bash
-npm install
+# Instalar dependências Python
+pip install -r requirements.txt
+
+# Instalar Playwright
+bash install-playwright.sh
 ```
 
 ### Teste Manual
 
 ```bash
+# Testar migração
+python test-migration.py
+
 # Executar coleta única
 curl http://localhost:3000/api/collect
+
+# Testar diretamente
+python api/collect.py test
 
 # Com Vercel Dev
 vercel dev
@@ -177,17 +230,31 @@ vercel dev
 
 ## 🔍 Troubleshooting
 
+### Erro: "Chrome not found"
+```bash
+# Solução: Usar Browserless
+export BROWSERLESS_URL=https://chrome.browserless.io
+```
+
+### Erro: "Playwright not installed"
+```bash
+# Solução: Instalar Playwright
+pip install playwright
+playwright install chromium
+```
+
 ### Erro de Autenticação
-- Verificar se `MLABS_AUTH_URL` está atualizada
-- JWT pode expirar, necessário gerar nova URL
+- Verificar se `MLABS_EMAIL` e `MLABS_PASSWORD` estão corretos
+- Credenciais podem expirar, necessário atualizar
 
 ### Erro de Timeout
 - Função configurada para 5 minutos máximo
-- Puppeteer pode demorar em páginas lentas
+- Playwright pode demorar em páginas lentas
 
 ### Dados Não Coletados
 - Verificar se seletores CSS ainda são válidos
 - Interface do Mlabs pode ter mudado
+- Verificar logs do Browserless
 
 ## 📈 Métricas Coletadas
 
@@ -226,4 +293,15 @@ O sistema executa automaticamente via cron job configurado no `vercel.json`:
 ```
 
 **Horário**: Todos os dias às 09:00 UTC (06:00 BRT)
+
+## 📚 Documentação Adicional
+
+Para mais detalhes sobre o projeto, consulte:
+- [Guia de Migração](MIGRATION_GUIDE.md) - Histórico da migração
+- [Resumo da Migração](MIGRATION_SUMMARY.md) - Resumo executivo
+- [Configuração do Browserless](https://chrome.browserless.io) - Serviço de browser
+
+---
+
+**🎉 Projeto limpo e otimizado!** O projeto agora usa Python com Playwright e Browserless, oferecendo compatibilidade total com ambientes serverless.
 
